@@ -28,9 +28,20 @@ public class Drivetrain extends Subsystem {
 	public final WPI_VictorSPX rightFollower2 = RobotMap.rightFollower2;
   public final WPI_TalonSRX leftLeader = RobotMap.leftLeader;
 	public final WPI_VictorSPX leftFollower = RobotMap.leftFollower;
-	public final WPI_VictorSPX leftFollower2 = RobotMap.leftFollower2;
+  public final WPI_VictorSPX leftFollower2 = RobotMap.leftFollower2;
+  public double wheelRadius;
+  public double drivebaseWidth;
+  public final int encoderTickDensity=1440;//May not be correct, will require knowing what encoders will be used.
+  public final double drivetrainGearRatio=1;//Placeholder for actual gear ratio on robot (not sure what it is)
+  public double rotationRateConversionConstant;
+  public Drivetrain(double wheelRadius_,double drivebaseWidth_) {
+    wheelRadius=wheelRadius_;
+    drivebaseWidth=drivebaseWidth_;
 
-  public Drivetrain() {
+    //Constant to convert (wheel radians)/sec to (motor ticks)/100ms, the unit WPI_TalonSRX.set works with in velocity mode.
+    //Used in setVelocity()
+    rotationRateConversionConstant=0.1*(1/(2*Math.PI))*encoderTickDensity/drivetrainGearRatio;
+
     // rightLeader
     // rightFollower
     // rightFollower2
@@ -88,10 +99,12 @@ public class Drivetrain extends Subsystem {
     rightLeader.set(ControlMode.PercentOutput, right);
   }
 
-  /** Checks if the input is outside of the deadzone */
+  /** Checks if the input is outside of the deadzone*/
   public void deadzoneFilter(double left, double right) {
     if(left < Presets.deadzone && left > -Presets.deadzone) left = 0;
+    else left=Math.signum(left)*Math.max(0,(Math.abs(left)-Presets.deadzone)/(1-Presets.deadzone));
     if(right < Presets.deadzone && right > -Presets.deadzone) right = 0;
+    else right=Math.signum(right)*Math.max(0,(Math.abs(right)-Presets.deadzone)/(1-Presets.deadzone));
     tankSet(left, right);
   }
 
@@ -108,5 +121,37 @@ public class Drivetrain extends Subsystem {
       left = mid - (Math.abs(rotation) * Math.signum(forward));
     }
     deadzoneFilter(left, right);
+  }
+  /**Tank drive based on real speed and rotation rate (translate in cm/s, rotate in radians/s) 
+   * WIP, obviously.
+  */
+  public void velocityDefinedDrive(double translate, double rotate){
+    /*
+    Transformation is
+    [1/r  L/(2r)] [T]   [V_R]
+    [1/r -L/(2r)] [R] = [V_L]
+    or
+    V_R=T/r+0.5*R*L/r
+    V_L=T/r-0.5*R*L/r
+    where r is the wheel radius and L is the robot's width.
+    */
+    double halfWidth = drivebaseWidth * 0.5;
+    setVelocity(
+      translate/wheelRadius + halfWidth*rotate/wheelRadius,
+      translate/wheelRadius + halfWidth*rotate/wheelRadius
+    );
+  }
+  /**Moves the wheels at absolute rotation speeds.
+   * @param left rotation speed for left motors in radians/sec
+   * @param right rotation speed for right motors in radians/sec
+   * @author Ben
+   * */
+  public void setVelocity(double left,double right){
+    //The conversion constant from the constructor is used here to convert an output rotation rate of the wheels
+    //to the required units (encoder ticks/100ms).
+    double leftAdjusted=left*rotationRateConversionConstant;
+    double rightAdjusted=right*rotationRateConversionConstant;
+    leftLeader.set(ControlMode.Velocity, leftAdjusted);
+    rightLeader.set(ControlMode.Velocity, rightAdjusted);
   }
 }
