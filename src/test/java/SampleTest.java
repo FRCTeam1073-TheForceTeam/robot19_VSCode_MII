@@ -6,6 +6,7 @@ import static org.junit.Assert.*;
 
 public class SampleTest {
     @Test public void testSample() {
-        assertNotNull("This is a sample test", 1);
+        Integer result = Integer.sum(1,1);
+        assertTrue(2==result);
     }
 }
