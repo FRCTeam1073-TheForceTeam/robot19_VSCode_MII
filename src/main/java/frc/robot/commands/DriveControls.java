@@ -13,7 +13,7 @@ import frc.robot.subsystems.*;
 
 public class DriveControls extends Command {
 
-  double forward, rot;
+  double forward, rotate;
 
   public DriveControls() {
     requires(Robot.drivetrain);
@@ -23,8 +23,8 @@ public class DriveControls extends Command {
   @Override
   protected void execute() {
     forward = Robot.oi.getDrAxis(1);
-    rot = Robot.oi.getDrAxis(4);
-    Robot.drivetrain.tankDrive(forward, rot);
+    rotate = Robot.oi.getDrAxis(4);
+    Robot.drivetrain.tankDrive(forward, rotate);
   }
 
   // Make this return true when this Command no longer needs to run execute()

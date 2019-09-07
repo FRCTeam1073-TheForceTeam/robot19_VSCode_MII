@@ -19,6 +19,7 @@ import frc.robot.subsystems.Drivetrain;
  */
 public class Robot extends TimedRobot {
   public static Drivetrain drivetrain;
+  public static Hatch hatch;
   public static OI oi;
 
 	protected Robot() {
@@ -34,7 +35,7 @@ public class Robot extends TimedRobot {
     RobotMap.init();
 
     drivetrain = new Drivetrain(Presets.wheelRadius,Presets.drivebaseWidth);
-
+    hatch = new Hatch();
     oi = new OI();
 
   }
