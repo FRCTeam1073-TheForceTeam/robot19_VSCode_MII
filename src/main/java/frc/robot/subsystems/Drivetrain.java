@@ -100,12 +100,15 @@ public class Drivetrain extends Subsystem {
   }
 
   /** Checks if the input is outside of the deadzone*/
-  public void deadzoneFilter(double left, double right) {
-    if(left < Presets.deadzone && left > -Presets.deadzone) left = 0;
-    else left=Math.signum(left)*Math.max(0,(Math.abs(left)-Presets.deadzone)/(1-Presets.deadzone));
-    if(right < Presets.deadzone && right > -Presets.deadzone) right = 0;
-    else right=Math.signum(right)*Math.max(0,(Math.abs(right)-Presets.deadzone)/(1-Presets.deadzone));
-    tankSet(left, right);
+  //public void deadzoneFilter(double left, double right) {
+    public static double deadzoneFilter(double input) {
+      double output;
+      if(input < Presets.deadzone && input > -Presets.deadzone) output = 0;
+      else output =Math.signum(input)*Math.max(0,(Math.abs(input)-Presets.deadzone)/(1-Presets.deadzone));
+      return output;
+    //if(right < Presets.deadzone && right > -Presets.deadzone) right = 0;
+    //else right=Math.signum(right)*Math.max(0,(Math.abs(right)-Presets.deadzone)/(1-Presets.deadzone));
+    
   }
 
   /** This SHOULD MAYBE take both of the input values and produce movement that does not favor either input, but is far from final */
@@ -120,7 +123,9 @@ public class Drivetrain extends Subsystem {
       right = mid + (Math.abs(rotation) * Math.signum(forward));
       left = mid - (Math.abs(rotation) * Math.signum(forward));
     }
-    deadzoneFilter(left, right);
+    
+
+    tankSet(deadzoneFilter(left), deadzoneFilter(right));
   }
   /**Tank drive based on real speed and rotation rate (translate in cm/s, rotate in radians/s) 
    * WIP, obviously.
