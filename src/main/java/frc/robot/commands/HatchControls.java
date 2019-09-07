@@ -10,8 +10,8 @@ public class HatchControls extends Command{
     }
     @Override
     protected void execute(){
-        Robot.hatch.setLift(deadzone(Robot.oi.getOpAxis(liftAxis)));
-        Robot.hatch.setIntake(deadzone(Robot.oi.getOpAxis(intakeAxis)));
+        Robot.hatch.setLift(deadzoneFilter(Robot.oi.getOpAxis(liftAxis)));
+        Robot.hatch.setIntake(deadzoneFilter(Robot.oi.getOpAxis(intakeAxis)));
     }
     @Override
     protected boolean isFinished(){

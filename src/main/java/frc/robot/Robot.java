@@ -8,6 +8,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 
 /**
@@ -20,6 +21,7 @@ import frc.robot.subsystems.Drivetrain;
 public class Robot extends TimedRobot {
   public static Drivetrain drivetrain;
   public static Hatch hatch;
+  public static Climber climber;
   public static OI oi;
 
 	protected Robot() {
@@ -36,6 +38,7 @@ public class Robot extends TimedRobot {
 
     drivetrain = new Drivetrain(Presets.wheelRadius,Presets.drivebaseWidth);
     hatch = new Hatch();
+    climber = new Climber();
     oi = new OI();
 
   }
