@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Solenoid;
 
 /**
@@ -15,12 +16,13 @@ import edu.wpi.first.wpilibj.Solenoid;
  */
 public class RobotMap {
   
-  /** If you are using multiple modules, make sure to define both the port
-  * number and the module. For example you with a rangefinder:
-  * public static int rangefinderPort = 1;
-  * public static int rangefinderModule = 1;
-  */
-  
+	/**
+	 * If you are using multiple modules, make sure to define bo
+	 * number and the module. For example you
+	 * public static int rangefinderPort = 1;
+	 * public static int rangefinderModule = 1;
+	 */
+	
 	public static ADXRS450_Gyro headingGyro;
 	public static WPI_TalonSRX rightLeader;
 	public static WPI_VictorSPX rightFollower;
@@ -45,17 +47,21 @@ public class RobotMap {
 	public static Solenoid fingerRaiser;
 	public static Solenoid fingerLowerer;
 
+	public static PowerDistributionPanel pdp;
+
 	public static void init() {
 
-		leftLeader = new WPI_TalonSRX(8);
-		leftFollower = new WPI_VictorSPX(9);
-		leftFollower2 = new WPI_VictorSPX(7);
+		pdp = new PowerDistributionPanel(0);
 
-		rightLeader = new WPI_TalonSRX(4);
-		rightFollower = new WPI_VictorSPX(2);
-		rightFollower2 = new WPI_VictorSPX(3);
+		leftLeader = new WPI_TalonSRX(2);
+//		leftFollower = new WPI_VictorSPX(9);
+//		leftFollower2 = new WPI_VictorSPX(7);
 
-		headingGyro = new ADXRS450_Gyro();
+		rightLeader = new WPI_TalonSRX(1);
+//		rightFollower = new WPI_VictorSPX(15);
+//		rightFollower2 = new WPI_VictorSPX(3);
+
+	/*	headingGyro = new ADXRS450_Gyro();
 		accelerometer = new BuiltInAccelerometer();
 
 		hatchCollect = new WPI_TalonSRX(5);
@@ -69,6 +75,6 @@ public class RobotMap {
 		high = new Solenoid(7);
 		low = new Solenoid(6);
 		fingerRaiser = new Solenoid(5);
-		fingerLowerer = new Solenoid(4);
+		fingerLowerer = new Solenoid(4);*/
 	}
 }

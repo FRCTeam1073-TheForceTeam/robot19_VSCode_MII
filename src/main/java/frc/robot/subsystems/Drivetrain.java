@@ -8,8 +8,13 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import frc.robot.*;
 import frc.robot.commands.*;
@@ -34,10 +39,18 @@ public class Drivetrain extends Subsystem {
   public final int encoderTickDensity=1440;//May not be correct, will require knowing what encoders will be used.
   public final double drivetrainGearRatio=1;//Placeholder for actual gear ratio on robot (not sure what it is)
   public double rotationRateConversionConstant;
-  public Drivetrain(double wheelRadius_,double drivebaseWidth_) {
-    wheelRadius=wheelRadius_;
-    drivebaseWidth=drivebaseWidth_;
+  public final boolean motorPowerSafety;
+  public final double motorPowerLimit;
 
+  public Drivetrain(double wheelRadius_, double drivebaseWidth_) {
+    this(wheelRadius_, drivebaseWidth_, false, 1);
+  }
+
+  public Drivetrain(double wheelRadius_, double drivebaseWidth_, boolean motorPowerSafety_, double motorPowerLimit_) {
+    wheelRadius = wheelRadius_;
+    drivebaseWidth = drivebaseWidth_;
+    motorPowerSafety = motorPowerSafety_;
+    motorPowerLimit = motorPowerLimit_;
     //Constant to convert (wheel radians)/sec to (motor ticks)/100ms, the unit WPI_TalonSRX.set works with in velocity mode.
     //Used in setVelocity()
     rotationRateConversionConstant=0.1*(1/(2*Math.PI))*encoderTickDensity/drivetrainGearRatio;
@@ -51,48 +64,79 @@ public class Drivetrain extends Subsystem {
 
     /** Motor config reset */
     rightLeader.configFactoryDefault();
-    rightFollower.configFactoryDefault();
-    rightFollower2.configFactoryDefault();
+//    rightFollower.configFactoryDefault();
+  //  rightFollower2.configFactoryDefault();
     leftLeader.configFactoryDefault();
-    leftFollower.configFactoryDefault();
-    leftFollower2.configFactoryDefault();
+ //   leftFollower.configFactoryDefault();
+ //   leftFollower2.configFactoryDefault();
 
     /** Motor safety config */
     rightLeader.setSafetyEnabled(false);
-    rightFollower.setSafetyEnabled(false);
-    rightFollower2.setSafetyEnabled(false);
+  //  rightFollower.setSafetyEnabled(false);
+  //  rightFollower2.setSafetyEnabled(false);
     leftLeader.setSafetyEnabled(false);
-    leftFollower.setSafetyEnabled(false);
-    leftFollower2.setSafetyEnabled(false);
+   // leftFollower.setSafetyEnabled(false);
+ //   leftFollower2.setSafetyEnabled(false);
 
     /** Motor neutral mode config */
     rightLeader.setNeutralMode(NeutralMode.Brake);
-    rightFollower.setNeutralMode(NeutralMode.Brake);
-    rightFollower2.setNeutralMode(NeutralMode.Brake);
+//    rightFollower.setNeutralMode(NeutralMode.Brake);
+//    rightFollower2.setNeutralMode(NeutralMode.Brake);
     leftLeader.setNeutralMode(NeutralMode.Brake);
-    leftFollower.setNeutralMode(NeutralMode.Brake);
-    leftFollower2.setNeutralMode(NeutralMode.Brake);
+//    leftFollower.setNeutralMode(NeutralMode.Brake);
+//    leftFollower2.setNeutralMode(NeutralMode.Brake);
 
     /** Motor direction config */
     rightLeader.setInverted(true);
-    rightFollower.setInverted(true);
-    rightFollower2.setInverted(true);
+//    rightFollower.setInverted(true);
+//    rightFollower2.setInverted(true);
     leftLeader.setInverted(false);
-    leftFollower.setInverted(false);
-    leftFollower2.setInverted(false);
+//    leftFollower.setInverted(false);
+    //    leftFollower2.setInverted(false);
 
+		leftLeader.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 1000);
+    rightLeader.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 1000);
+
+    leftLeader.config_kP(0, 10);
+    leftLeader.config_kI(0, 0.1);
+    leftLeader.config_kD(0, 350);
+    rightLeader.config_kP(0, 10);
+    rightLeader.config_kI(0, 0.1);
+    rightLeader.config_kD(0, 350);
     /** Motor following config */
-    rightFollower.follow(rightLeader);
-    rightFollower2.follow(rightLeader);
-    leftFollower.follow(leftLeader);
-    leftFollower2.follow(leftLeader);
+ //   rightFollower.follow(rightLeader);
+  //  rightFollower2.follow(rightLeader);
+//    leftFollower.follow(leftLeader);
+//    leftFollower2.follow(leftLeader);
   }
 
   @Override
   public void initDefaultCommand() {
+    
+    /*setDefaultCommand(
+    new ControlledMotorGroup(
+      new ControlledMotor[] { 
+        new ControlledMotorAnalog(leftLeader, 1, 0.5),
+        new ControlledMotorAnalog(rightLeader, 5, 0.5),
+      },
+      this
+    )
+    );*/
     setDefaultCommand(new DriveControls());
   }
-
+  
+  @Override
+  public void periodic() {
+  SmartDashboard.putNumber("Left joystick Y", 100.0*Robot.oi.getDrAxis(1));
+  SmartDashboard.putNumber("Right joystick Y", 100.0*Robot.oi.getDrAxis(5));
+  SmartDashboard.putNumber("Left encoder power",leftLeader.getMotorOutputPercent());
+  SmartDashboard.putNumber("right encoder power",rightLeader.getMotorOutputPercent());
+  SmartDashboard.putNumber("Left encoder velocity",leftLeader.getSelectedSensorVelocity());
+  SmartDashboard.putNumber("Right encoder velocity",rightLeader.getSelectedSensorVelocity());
+  SmartDashboard.putNumber("Power",RobotMap.pdp.getVoltage());
+  SmartDashboard.putNumber("Temperature",RobotMap.pdp.getTemperature());
+  }
+  
   /** Sets the motors to the input value */
   public void tankSet(double left, double right) {
     leftLeader.set(ControlMode.PercentOutput, left);
@@ -100,32 +144,43 @@ public class Drivetrain extends Subsystem {
   }
 
   /** Checks if the input is outside of the deadzone*/
-  public void deadzoneFilter(double left, double right) {
-    if(left < Presets.deadzone && left > -Presets.deadzone) left = 0;
-    else left=Math.signum(left)*Math.max(0,(Math.abs(left)-Presets.deadzone)/(1-Presets.deadzone));
-    if(right < Presets.deadzone && right > -Presets.deadzone) right = 0;
-    else right=Math.signum(right)*Math.max(0,(Math.abs(right)-Presets.deadzone)/(1-Presets.deadzone));
-    tankSet(left, right);
+  private double[] deadzoneFilter(double left, double right) {
+    left = Utilities.deadzone(left);
+    right = Utilities.deadzone(right);
+    return new double[] { left, right };
   }
 
   /** This SHOULD MAYBE take both of the input values and produce movement that does not favor either input, but is far from final */
-  public void tankDrive(double forward, double rotation) {
+  public void arcadeDrive(double forward, double rotation) {
+
+    /*
+    //  Sorry, Jack.
     double mid, right, left;
     mid = forward - (Math.abs(rotation) * Math.signum(forward));
-    if(rotation > 0) {
-      right = mid - (Math.abs(rotation) * Math.signum(forward));
-      left = mid + (Math.abs(rotation) * Math.signum(forward));
-    }
-    else {
-      right = mid + (Math.abs(rotation) * Math.signum(forward));
-      left = mid - (Math.abs(rotation) * Math.signum(forward));
-    }
-    deadzoneFilter(left, right);
+    if (rotation > 0) {
+    right = mid - (Math.abs(rotation) * Math.signum(forward));
+    left = mid + (Math.abs(rotation) * Math.signum(forward));
+    } else {
+    right = mid + (Math.abs(rotation) * Math.signum(forward));
+    left = mid - (Math.abs(rotation) * Math.signum(forward));
+    }*/
+  double left,right;
+  left = Utilities.clip(forward + rotation, 1);
+  right = Utilities.clip(forward - rotation, 1);
+  if (motorPowerSafety) {
+    right *= motorPowerLimit;
+    left *= motorPowerLimit;
   }
+  double[] data = deadzoneFilter(left, right);
+  left = data[0];
+  right = data[1];
+  tankSet(left, right);
+  }
+  
   /**Tank drive based on real speed and rotation rate (translate in cm/s, rotate in radians/s) 
-   * WIP, obviously.
+  * WIP, obviously.
   */
-  public void velocityDefinedDrive(double translate, double rotate){
+  public void velocityDefinedDrive(double translate, double rotate) {
     /*
     Transformation is
     [1/r  L/(2r)] [T]   [V_R]
@@ -136,11 +191,10 @@ public class Drivetrain extends Subsystem {
     where r is the wheel radius and L is the robot's width.
     */
     double halfWidth = drivebaseWidth * 0.5;
-    setVelocity(
-      translate/wheelRadius + halfWidth*rotate/wheelRadius,
-      translate/wheelRadius + halfWidth*rotate/wheelRadius
-    );
+    setVelocity(translate / wheelRadius + halfWidth * rotate / wheelRadius,
+        translate / wheelRadius + halfWidth * rotate / wheelRadius);
   }
+
   /**Moves the wheels at absolute rotation speeds.
    * @param left rotation speed for left motors in radians/sec
    * @param right rotation speed for right motors in radians/sec
@@ -153,5 +207,6 @@ public class Drivetrain extends Subsystem {
     double rightAdjusted=right*rotationRateConversionConstant;
     leftLeader.set(ControlMode.Velocity, leftAdjusted);
     rightLeader.set(ControlMode.Velocity, rightAdjusted);
+    System.out.println(leftAdjusted + "," + rightAdjusted);
   }
 }

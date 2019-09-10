@@ -7,7 +7,15 @@
 
 package frc.robot;
 
+import java.util.Map;
+
+import com.ctre.phoenix.Util;
+
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.command.Scheduler;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Drivetrain;
 
 /**
@@ -21,9 +29,13 @@ public class Robot extends TimedRobot {
   public static Drivetrain drivetrain;
   public static OI oi;
 
-	protected Robot() {
-		super(0.03); //cycle time
-	}
+  protected Robot() {
+    super(0.03); //cycle time
+  }
+
+  @Override
+  public void disabledPeriodic() {
+  }
 
   /**
    * This function is run when the robot is first started up and should be
@@ -33,10 +45,9 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     RobotMap.init();
 
-    drivetrain = new Drivetrain(Presets.wheelRadius,Presets.drivebaseWidth);
+    drivetrain = new Drivetrain(Presets.wheelRadius, Presets.drivebaseWidth, true, 1);
 
     oi = new OI();
-
   }
 
   /**
@@ -65,6 +76,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
 
+
   }
 
   /**
@@ -72,7 +84,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
-
+    Scheduler.getInstance().run();
   }
 
   /**
@@ -80,6 +92,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
+    Scheduler.getInstance().run();
   }
 
   /**
@@ -87,5 +100,14 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void testPeriodic() {
+    Scheduler.getInstance().run();
+  }
+
+  @Override
+  public void teleopInit() {
+  }
+
+  @Override
+  public void disabledInit() {
   }
 }

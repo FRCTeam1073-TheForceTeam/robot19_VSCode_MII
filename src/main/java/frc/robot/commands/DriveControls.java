@@ -14,6 +14,7 @@ import frc.robot.subsystems.*;
 public class DriveControls extends Command {
 
   double forward, rot;
+  int loops=0;
 
   public DriveControls() {
     requires(Robot.drivetrain);
@@ -23,8 +24,11 @@ public class DriveControls extends Command {
   @Override
   protected void execute() {
     forward = Robot.oi.getDrAxis(1);
-    rot = Robot.oi.getDrAxis(4);
-    Robot.drivetrain.tankDrive(forward, rot);
+    rot = Robot.oi.getDrAxis(5);
+    System.out.println("[ALIVE "+loops+" ] " + forward + ", " + rot);
+    Robot.drivetrain.setVelocity(forward * 6.5, rot * 6.5);
+    Robot.oi.driverControl.rumble(Math.abs(forward), Math.abs(rot));
+    loops++;
   }
 
   // Make this return true when this Command no longer needs to run execute()
