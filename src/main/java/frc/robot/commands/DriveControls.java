@@ -13,7 +13,6 @@ import frc.robot.subsystems.*;
 
 public class DriveControls extends Command {
 
-  double forward, rot;
 
   public DriveControls() {
     requires(Robot.drivetrain);
@@ -22,9 +21,7 @@ public class DriveControls extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    forward = Robot.oi.getDrAxis(1);
-    rot = Robot.oi.getDrAxis(4);
-    Robot.drivetrain.tankDrive(forward, rot);
+
   }
 
   // Make this return true when this Command no longer needs to run execute()
