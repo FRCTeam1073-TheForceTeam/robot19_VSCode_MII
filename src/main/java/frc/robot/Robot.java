@@ -33,7 +33,7 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     RobotMap.init();
 
-    drivetrain = new Drivetrain(Presets.wheelRadius,Presets.drivebaseWidth);
+    drivetrain = new Drivetrain();
 
     oi = new OI();
 
